@@ -1,0 +1,54 @@
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0.5
+    command: start-dev
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin_password_demo
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - keycloak_data:/opt/keycloak/data
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/8080 && echo -e 'GET /health/ready HTTP/1.1\\r\\nHost: 127.0.0.1\\r\\n\\r\\n' >&3 && grep -q '200 OK' <&3 || exit 0"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      ENVIRONMENT: production
+      HOST: 0.0.0.0
+      PORT: 8000
+      DATABASE_URL: sqlite:////app/data/axiom_observatory.db
+      AUTH_MODE: demo
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - backend_data:/app/data
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "127.0.0.1:3000:80"
+    depends_on:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:80/ || exit 0"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  backend_data:
+  keycloak_data:
