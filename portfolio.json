@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "name": "axiom-observatory-alan-vo",
+  "owner": "ALANDVO",
+  "email": "alanvo@gmail.com",
+  "domain": "AI/ML developer tools",
+  "summary": "Work in progress: axiom-observatory-alan-vo",
+  "workflows": [
+    "Binary import audit and NID resolution triage",
+    "ML-assisted shader recompiler failure classification",
+    "Multi-stage execution stop sequence tracking and mitigation"
+  ],
+  "auth": "oidc-keycloak-saml-broker",
+  "llm_providers": [
+    "openai-compatible",
+    "anthropic",
+    "gemini",
+    "ollama"
+  ],
+  "status": "work-in-progress"
+}

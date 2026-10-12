@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "current_feature": "binary-import-audit-and-stop-triage",
+  "features": [
+    {
+      "id": "binary-import-audit-and-stop-triage",
+      "title": "Binary Import Audit and ML Stop Triage",
+      "status": "done",
+      "acceptance": [
+        "Ingest ELF/PRX import tables and runtime recompiler log traces",
+        "Resolve known and unknown NIDs using the embedded POSIX/PS5 aerolib catalog",
+        "Classify execution stops into risk categories using a trained ML stop classifier",
+        "Persist triage sessions in SQLite with pagination, filtering, and JSON export",
+        "Interactive React dashboard with summary statistics, submission form, and detail view"
+      ],
+      "implementation": [
+        "backend/app/main.py",
+        "backend/app/core/config.py",
+        "backend/app/models/database.py",
+        "backend/app/models/schemas.py",
+        "backend/app/services/nid_database.py",
+        "backend/app/services/ml_classifier.py",
+        "backend/app/services/triage_service.py",
+        "backend/app/api/routes.py",
+        "frontend/src/App.tsx",
+        "frontend/src/api/client.ts",
+        "frontend/src/components/Dashboard.tsx",
+        "frontend/src/components/TriageForm.tsx",
+        "frontend/src/components/TriageDetail.tsx"
+      ],
+      "tests": [
+        "backend/tests/test_triage_api.py",
+        "backend/tests/test_ml_classifier.py",
+        "backend/tests/test_nid_database.py",
+        "frontend/src/test/App.test.tsx"
+      ]
+    },
+    {
+      "id": "execution-bisection-tracker",
+      "title": "Multi-Stage Execution Stop Sequence and Bisection Tracker",
+      "status": "planned",
+      "acceptance": [
+        "Track linear progression through multiple startup stops (stops 1..N)",
+        "Correlate shader-cache miss thresholds with crash points",
+        "Automated commit bisection replay simulation for recompiler regressions"
+      ]
+    },
+    {
+      "id": "shader-cfg-complexity-analyzer",
+      "title": "Shader CFG Complexity and Masked-Lane Walk Bottleneck Detector",
+      "status": "planned",
+      "acceptance": [
+        "Static CFG analysis of RDNA2 guest shader code",
+        "Detection of runaway merge splitting and masked select elimination loops",
+        "Heuristic pass budgeting recommendations"
+      ]
+    },
+    {
+      "id": "oidc-keycloak-auth-integration",
+      "title": "OIDC Keycloak Authentication with SAML Broker Support",
+      "status": "planned",
+      "acceptance": [
+        "Full PKCE authorization-code flow with Keycloak",
+        "Role-based access control for viewer, analyst, and admin",
+        "Local demo mode toggle for unauthenticated localhost testing"
+      ]
+    }
+  ]
+}
