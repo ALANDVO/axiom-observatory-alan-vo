@@ -1,3 +1,4 @@
+import json
 from typing import List, Optional, Tuple, Dict, Any
 from sqlalchemy.orm import Session
 from sqlalchemy import func
@@ -5,6 +6,7 @@ from app.models.database import TriageSession, SymbolRecord, AuditLog
 from app.models.schemas import TriageCreateRequest
 from app.services.nid_database import extract_symbols_from_trace
 from app.services.ml_classifier import classifier
+from app.services.profiler import extract_profiler_counters, compute_walk_complexity
 
 def perform_triage(db: Session, request: TriageCreateRequest) -> TriageSession:
     # 1. Parse symbol dependencies from trace
@@ -17,7 +19,11 @@ def perform_triage(db: Session, request: TriageCreateRequest) -> TriageSession:
     absent_imports = sum(1 for s in extracted if s["status"] == "absent")
     stub_imports = sum(1 for s in extracted if s["status"] == "stub")
 
-    # 3. Create Session Record
+    # 3. Extract masked-select-eliminator profiler counters (#3504)
+    counters = extract_profiler_counters(request.raw_trace)
+    complexity = compute_walk_complexity(counters)
+
+    # 4. Create Session Record
     session = TriageSession(
         title_id=request.title_id.strip().upper(),
         title_name=request.title_name.strip(),
@@ -29,7 +35,10 @@ def perform_triage(db: Session, request: TriageCreateRequest) -> TriageSession:
         raw_trace=request.raw_trace.strip(),
         total_imports=total_imports,
         absent_imports=absent_imports,
-        stub_imports=stub_imports
+        stub_imports=stub_imports,
+        profiler_counters=json.dumps(counters),
+        walk_complexity_score=complexity["score"],
+        complexity_risk=complexity["risk"]
     )
     db.add(session)
     db.flush()
@@ -54,7 +63,22 @@ def perform_triage(db: Session, request: TriageCreateRequest) -> TriageSession:
     )
     db.add(audit)
 
+    # 6. Analyzer audit event for profiler complexity signal
+    if complexity["risk"] != "none":
+        profiler_audit = AuditLog(
+            session_id=session.id,
+            action="PROFILER_WALK_ANALYZED",
+            detail=(
+                f"Masked-select walk complexity {complexity['risk']} "
+                f"(score={complexity['score']}, walks={complexity['walks']}, "
+                f"values_visited={complexity['values_visited']}): "
+                + "; ".join(complexity["signals"])
+            )
+        )
+        db.add(profiler_audit)
+
     db.commit()
+
     db.refresh(session)
     return session
 
@@ -96,14 +120,17 @@ def get_stats(db: Session) -> Dict[str, Any]:
     for cat, count in db.query(TriageSession.category, func.count(TriageSession.id)).group_by(TriageSession.category).all():
         cat_counts[cat] = count
 
+    risk_counts = {}
+    for risk, count in db.query(TriageSession.complexity_risk, func.count(TriageSession.id)).group_by(TriageSession.complexity_risk).all():
+        risk_counts[risk] = count
+
     os_counts = {}
-    for os_name, count in db.query(TriageSession.target_os, func.count(TriageSession.id)).group_by(TriageSession.target_os).all():
-        os_counts[os_name] = count
 
     return {
         "total_sessions": total_sessions,
         "total_symbols_analyzed": total_symbols,
         "total_absent_symbols": total_absent,
         "category_counts": cat_counts,
+        "complexity_risk_counts": risk_counts,
         "target_os_counts": os_counts
     }

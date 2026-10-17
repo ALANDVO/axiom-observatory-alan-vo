@@ -35,6 +35,10 @@ class TriageSession(Base):
     absent_imports = Column(Integer, default=0)
     stub_imports = Column(Integer, default=0)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+    # Masked-select-eliminator profiler counters (#3504), stored as JSON text.
+    profiler_counters = Column(Text, default="{}", nullable=False)
+    walk_complexity_score = Column(Float, default=0.0, nullable=False)
+    complexity_risk = Column(String(32), default="none", nullable=False)
 
     symbols = relationship("SymbolRecord", back_populates="session", cascade="all, delete-orphan")
     audit_events = relationship("AuditLog", back_populates="session", cascade="all, delete-orphan")

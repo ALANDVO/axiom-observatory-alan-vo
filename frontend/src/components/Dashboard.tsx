@@ -58,6 +58,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
               Linux: {stats.target_os_counts['linux'] || 0} | Windows: {stats.target_os_counts['windows'] || 0}
             </span>
           </div>
+          <div className="stat-card">
+            <span className="stat-label">Stop Complexity</span>
+            <span className="stat-subtext">
+              Critical: {stats.complexity_risk_counts?.critical || 0} | High: {stats.complexity_risk_counts?.high || 0} | Elevated: {stats.complexity_risk_counts?.elevated || 0}
+            </span>
+          </div>
         </div>
       )}
 
@@ -103,6 +109,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 <th>Category</th>
                 <th>Confidence</th>
                 <th>Symbols (Absent)</th>
+                <th>Walk Complexity</th>
                 <th>Recorded</th>
                 <th>Action</th>
               </tr>
@@ -123,6 +130,15 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   <td>{Math.round(item.confidence * 100)}%</td>
                   <td>
                     {item.total_imports} ({item.absent_imports})
+                  </td>
+                  <td>
+                    {item.walk_complexity_score && item.walk_complexity_score > 0 ? (
+                      <span className={`badge-sym badge-complexity-${item.complexity_risk || 'none'}`}>
+                        {Math.round((item.walk_complexity_score || 0) * 100)}% {item.complexity_risk || ''}
+                      </span>
+                    ) : (
+                      <span className="text-muted">—</span>
+                    )}
                   </td>
                   <td className="text-muted">{new Date(item.created_at).toLocaleDateString()}</td>
                   <td>

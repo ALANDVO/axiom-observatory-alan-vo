@@ -26,7 +26,9 @@ graph TD
    - `CFG_MERGE_EXPLOSION`: Recompiler block splitting exceeding budget or masked-lane walk timeouts.
    - `ANCILLARY_REGISTER_REUSE`: Packed pixel ancillary input register reuse hazards.
    - `HARDWARE_FEATURE_GAP`: Missing host Vulkan extensions (e.g. 64-bit atomics, depth-stencil storage).
-   - `RUNTIME_STUB_FAULT`: Null pointer traps or asynchronous FIFO thread deadlocks.
+- `RUNTIME_STUB_FAULT`: Null pointer traps or asynchronous FIFO thread deadlocks.
+
+Recompiler traces that expose masked-select-eliminator profiler counters (issue #3504) are additionally parsed into structured counters (`walks`, `values_visited`, `implications`, `selects_removed`), producing a walk-complexity score and an advisory risk tier (`none` → `elevated` → `high` → `critical`) grounded in the measured Stray stop. The score and risk are persisted with the session and surfaced in the dashboard, detail view and JSON export.
 3. **Persistent Observatory Sessions & Audit Trail**: Stores all triage sessions, symbol records, confidence metrics, and diagnostic recommendations in transactional SQLite storage, with full pagination, filtering, search, and JSON export.
 
 ## AI/ML Evaluation
@@ -58,6 +60,7 @@ The classifier was benchmarked against a rule-based Keyword Matching Baseline:
 ### Failure Cases & Boundary Limitations
 - **Obfuscated or Non-Standard Crash Dumps**: If a crash dump lacks symbol tokens or compiler error keywords (e.g. raw memory addresses without stack frames), confidence drops below 40%, triggering a fallback recommendation for register inspection.
 - **Novel Hardware Architectures**: New GPU driver quirks outside RDNA2/Intel/NVIDIA Vulkan behaviors require supplementary training samples.
+- **Profiler Counter Parsing**: Walk-complexity scoring parses the textual `N walks, M values visited` counters emitted by `MaskedSelectEliminator`; traces without those counters yield risk `none` by design and are never fabricated.
 
 ## Installation and Quickstart
 
@@ -94,12 +97,12 @@ Open `http://127.0.0.1:3000` in your browser.
 
 ## API Reference
 
-- `GET /api/health`: Health status.
-- `GET /api/stats`: Aggregate triage metrics and category breakdowns.
+- `GET /api/health`: Health status (version read from service config).
+- `GET /api/stats`: Aggregate triage metrics, category breakdowns, and `complexity_risk_counts`.
 - `POST /api/triage`: Ingest and analyze a binary trace or crash log.
 - `GET /api/triage`: List paginated triage sessions with search and category filtering.
-- `GET /api/triage/{id}`: Retrieve detailed triage session with symbol table and audit trail.
-- `GET /api/triage/{id}/export`: Export triage report as structured JSON.
+- `GET /api/triage/{id}`: Retrieve detailed triage session with symbol table, audit trail, and masked-select walk complexity (`profiler_counters`, `walk_complexity_score`, `complexity_risk`).
+- `GET /api/triage/{id}/export`: Export triage report as structured JSON (includes profiler counters and complexity risk).
 - `GET /api/nid/lookup`: Query symbol information by NID or function name.
 - `POST /api/ml/evaluate`: Run ML evaluation benchmark suite.
 

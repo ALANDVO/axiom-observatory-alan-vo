@@ -1,7 +1,8 @@
+import json
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
-
+from app.core.config import settings
 from app.models.database import get_db
 from app.models.schemas import (
     TriageCreateRequest,
@@ -19,7 +20,7 @@ router = APIRouter(prefix="/api")
 
 @router.get("/health")
 def health():
-    return {"status": "ok", "service": "axiom-observatory", "version": "1.0.0"}
+    return {"status": "ok", "service": "axiom-observatory", "version": settings.version}
 
 @router.get("/stats", response_model=StatsResponse)
 def get_stats(db: Session = Depends(get_db)):
@@ -70,6 +71,9 @@ def export_triage(session_id: int, db: Session = Depends(get_db)):
             "confidence": session.confidence,
             "root_cause": session.root_cause,
             "mitigation": session.mitigation,
+            "profiler_counters": json.loads(session.profiler_counters) if session.profiler_counters else {},
+            "walk_complexity_score": session.walk_complexity_score,
+            "complexity_risk": session.complexity_risk,
             "created_at": session.created_at.isoformat(),
             "symbols": [
                 {

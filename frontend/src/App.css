@@ -129,6 +129,11 @@ body {
   margin-bottom: 1.5rem;
 }
 
+.profiler-card h3 {
+  margin-top: 0;
+  color: var(--color-info);
+}
+
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -313,6 +318,31 @@ body {
   color: #fb7185;
 }
 
+.badge-large {
+  font-size: 0.85rem;
+  padding: 0.35rem 0.75rem;
+}
+
+.badge-complexity-none {
+  background: rgba(148, 163, 184, 0.2);
+  color: #cbd5e1;
+}
+
+.badge-complexity-elevated {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+}
+
+.badge-complexity-high {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+}
+
+.badge-complexity-critical {
+  background: rgba(124, 54, 255, 0.2);
+  color: #c084fc;
+}
+
 .tag {
   display: inline-block;
   padding: 0.2rem 0.5rem;
@@ -492,6 +522,18 @@ body {
 .confidence-bar {
   height: 100%;
   background: linear-gradient(90deg, #3b82f6, #10b981);
+}
+
+.complexity-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.complexity-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #a85cff);
 }
 
 .confidence-text {

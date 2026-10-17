@@ -4,7 +4,7 @@ Each round completes one feature or repair. Future items are planned, not implem
 
 ## Current round
 
-binary-import-audit-and-stop-triage
+shader-cfg-complexity-analyzer
 
 ## Roadmap
 
@@ -23,6 +23,20 @@ Implementation: `backend/app/main.py`, `backend/app/core/config.py`, `backend/ap
 
 Tests: `backend/tests/test_triage_api.py`, `backend/tests/test_ml_classifier.py`, `backend/tests/test_nid_database.py`, `frontend/src/test/App.test.tsx`
 
+### shader-cfg-complexity-analyzer — Shader CFG Complexity and Masked-Lane Walk Bottleneck Detector
+
+Status: done
+
+Acceptance:
+- Parse masked-select-eliminator profiler counters (walks, values_visited, implications, selects_removed) from recompiler traces
+- Compute a walk-complexity score and advisory risk tier grounded in #3504
+- Persist counters/score/risk per triage session and surface in dashboard, detail, and JSON export
+- Aggregate complexity risk counts in /api/stats
+
+Implementation: `backend/app/services/profiler.py`, `backend/app/models/database.py`, `backend/app/models/schemas.py`, `backend/app/services/triage_service.py`, `backend/app/api/routes.py`, `frontend/src/api/client.ts`, `frontend/src/components/Dashboard.tsx`, `frontend/src/components/TriageDetail.tsx`
+
+Tests: `backend/tests/test_profiler.py`, `backend/tests/test_triage_api.py`, `frontend/src/test/App.test.tsx`
+
 ### execution-bisection-tracker — Multi-Stage Execution Stop Sequence and Bisection Tracker
 
 Status: planned
@@ -31,15 +45,6 @@ Acceptance:
 - Track linear progression through multiple startup stops (stops 1..N)
 - Correlate shader-cache miss thresholds with crash points
 - Automated commit bisection replay simulation for recompiler regressions
-
-### shader-cfg-complexity-analyzer — Shader CFG Complexity and Masked-Lane Walk Bottleneck Detector
-
-Status: planned
-
-Acceptance:
-- Static CFG analysis of RDNA2 guest shader code
-- Detection of runaway merge splitting and masked select elimination loops
-- Heuristic pass budgeting recommendations
 
 ### oidc-keycloak-auth-integration — OIDC Keycloak Authentication with SAML Broker Support
 
