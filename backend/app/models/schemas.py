@@ -1,6 +1,7 @@
+import json
 from datetime import datetime
-from typing import List, Optional
-from pydantic import BaseModel, Field
+from typing import Any, Dict, List, Optional
+from pydantic import BaseModel, Field, field_validator
 
 class SymbolItem(BaseModel):
     nid: str
@@ -43,9 +44,12 @@ class TriageSessionSummary(BaseModel):
     total_imports: int
     absent_imports: int
     stub_imports: int
+    walk_complexity_score: float = 0.0
+    complexity_risk: str = "none"
     created_at: datetime
 
     model_config = {"from_attributes": True}
+
 
 class TriageSessionDetail(BaseModel):
     id: int
@@ -60,11 +64,24 @@ class TriageSessionDetail(BaseModel):
     total_imports: int
     absent_imports: int
     stub_imports: int
+    profiler_counters: Dict[str, Any] = {}
+    walk_complexity_score: float = 0.0
+    complexity_risk: str = "none"
     created_at: datetime
     symbols: List[SymbolResponse] = []
     audit_events: List[AuditResponse] = []
 
     model_config = {"from_attributes": True}
+
+    @field_validator("profiler_counters", mode="before")
+    @classmethod
+    def _parse_profiler_counters(cls, v: Any) -> Dict[str, Any]:
+        if isinstance(v, str):
+            try:
+                return json.loads(v)
+            except json.JSONDecodeError:
+                return {}
+        return v if isinstance(v, dict) else {}
 
 class PaginatedTriageResponse(BaseModel):
     items: List[TriageSessionSummary]
@@ -77,6 +94,7 @@ class StatsResponse(BaseModel):
     total_symbols_analyzed: int
     total_absent_symbols: int
     category_counts: dict
+    complexity_risk_counts: Dict[str, int]
     target_os_counts: dict
 
 class NIDLookupResponse(BaseModel):

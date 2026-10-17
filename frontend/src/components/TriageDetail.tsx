@@ -74,6 +74,50 @@ export const TriageDetail: React.FC<TriageDetailProps> = ({ session, onBack, onE
         </div>
       </div>
 
+      {(session.profiler_counters || (session.walk_complexity_score && session.walk_complexity_score > 0)) && (
+        <div className="card profiler-card">
+          <h3>Masked-Select Walk Profiler (#3504)</h3>
+          {session.walk_complexity_score && session.walk_complexity_score > 0 ? (
+            <>
+              <div className="complexity-header">
+                <span className={`badge badge-large badge-complexity-${session.complexity_risk || 'none'}`}>
+                  {session.complexity_risk || 'none'}
+                </span>
+                <span className="confidence-text">
+                  Complexity score: {Math.round((session.walk_complexity_score || 0) * 100)}%
+                </span>
+              </div>
+              <div className="confidence-bar-wrapper">
+                <div
+                  className="complexity-bar"
+                  style={{ width: `${Math.round((session.walk_complexity_score || 0) * 100)}%` }}
+                />
+              </div>
+              {session.profiler_counters && Object.keys(session.profiler_counters).length > 0 && (
+                <table className="symbols-table">
+                  <thead>
+                    <tr><th>Counter</th><th>Value</th></tr>
+                  </thead>
+                  <tbody>
+                    {["walks", "values_visited", "implications", "selects_removed"].map((k) => {
+                      const v = (session.profiler_counters as Record<string, number | null>)[k];
+                      return (
+                        <tr key={k}>
+                          <td className="mono">{k}</td>
+                          <td className="mono">{v == null ? "—" : String(v)}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              )}
+            </>
+          ) : (
+            <p className="text-muted">Recompiler trace contained no masked-lane walk profiler counters.</p>
+          )}
+        </div>
+      )}
+
       <div className="card symbols-card">
         <h3>Symbol & Import Table Audit ({session.symbols.length} detected)</h3>
         {session.symbols.length === 0 ? (

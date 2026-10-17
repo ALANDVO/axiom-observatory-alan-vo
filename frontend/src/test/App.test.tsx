@@ -151,4 +151,53 @@ describe('Axiom Observatory Frontend', () => {
 
     expect(searchInput.value).toBe('PPSA11386');
   });
+
+  it('renders profiler complexity card for a masked-select walk trace', async () => {
+    vi.spyOn(globalThis, 'fetch').mockImplementation((_url: RequestInfo | URL, opts: RequestInit | undefined) => {
+      if (opts?.method === 'POST') {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({
+            id: 43,
+            title_id: 'PPSA02101',
+            title_name: 'Stray',
+            target_os: 'linux',
+            category: 'CFG_MERGE_EXPLOSION',
+            confidence: 0.91,
+            root_cause: 'Control Flow Graph structurization exceeded splitting budget',
+            mitigation: 'Increase CFG split budget',
+            raw_trace: 'masked-lane walk implication loop: 56,190 walks, 1,233 M values visited',
+            total_imports: 0,
+            absent_imports: 0,
+            stub_imports: 0,
+            walk_complexity_score: 0.9998,
+            complexity_risk: 'critical',
+            profiler_counters: { walks: 56190, values_visited: 1233000000, implications: null, selects_removed: null },
+            created_at: new Date().toISOString(),
+            symbols: [],
+            audit_events: [
+              { id: 1, action: 'TRIAGE_ANALYZED', detail: 'Analyzed PPSA02101', created_at: new Date().toISOString() },
+              { id: 2, action: 'PROFILER_WALK_ANALYZED', detail: 'walk complexity critical', created_at: new Date().toISOString() },
+            ],
+          }),
+        } as Response);
+      }
+      return Promise.resolve({
+        ok: true,
+        json: async () => ({ items: [], total: 0 }),
+      } as Response);
+    });
+
+    render(<App />);
+
+    fireEvent.click(screen.getByRole('button', { name: /\+ New Triage Session/i }));
+    fireEvent.click(screen.getByRole('button', { name: /007 First Light/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Execute Triage & Diagnosis/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText(/Masked-Select Walk Profiler/)).toBeInTheDocument();
+      expect(screen.getByText('critical')).toBeInTheDocument();
+      expect(screen.getByText('56190')).toBeInTheDocument();
+    });
+  });
 });

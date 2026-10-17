@@ -24,6 +24,8 @@ export interface TriageSessionSummary {
   total_imports: number;
   absent_imports: number;
   stub_imports: number;
+  walk_complexity_score?: number;
+  complexity_risk?: string;
   created_at: string;
 }
 
@@ -43,6 +45,9 @@ export interface TriageSessionDetail {
   created_at: string;
   symbols: SymbolRecord[];
   audit_events: AuditEvent[];
+  profiler_counters?: Record<string, number | null>;
+  walk_complexity_score?: number;
+  complexity_risk?: string;
 }
 
 export interface StatsData {
@@ -50,6 +55,7 @@ export interface StatsData {
   total_symbols_analyzed: number;
   total_absent_symbols: number;
   category_counts: Record<string, number>;
+  complexity_risk_counts?: Record<string, number>;
   target_os_counts: Record<string, number>;
 }
 

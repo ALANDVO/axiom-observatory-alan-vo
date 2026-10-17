@@ -3,7 +3,7 @@ from pydantic import BaseModel
 
 class Settings(BaseModel):
     app_name: str = "Axiom Observatory"
-    version: str = "1.0.0"
+    version: str = "1.1.0"
     environment: str = os.getenv("ENVIRONMENT", "development")
     host: str = os.getenv("HOST", "127.0.0.1")
     port: int = int(os.getenv("PORT", "8000"))

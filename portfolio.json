@@ -7,8 +7,8 @@
   "summary": "Work in progress: axiom-observatory-alan-vo",
   "workflows": [
     "Binary import audit and NID resolution triage",
-    "ML-assisted shader recompiler failure classification",
-    "Multi-stage execution stop sequence tracking and mitigation"
+    "ML-assisted shader recompiler stop classification into five failure categories",
+    "Masked-select walk profiler counter extraction and runaway-walk complexity scoring"
   ],
   "auth": "oidc-keycloak-saml-broker",
   "llm_providers": [

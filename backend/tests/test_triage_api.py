@@ -170,3 +170,46 @@ def test_ml_evaluate_endpoint(client):
     data = res.json()
     assert data["total_samples"] > 0
     assert data["accuracy"] > 0.7
+
+def test_profiler_counters_flows_through_create_get_export(client):
+    """Stray masked-lane trace (#3504): counters persist + surface end-to-end."""
+    trace = (
+        "masked-lane walk implication loop: 56,190 walks, "
+        "1,233 M values visited, selects eliminated"
+    )
+    create_res = client.post("/api/triage", json={
+        "title_id": "PPSA02101",
+        "title_name": "Stray",
+        "target_os": "linux",
+        "raw_trace": trace,
+    })
+    assert create_res.status_code == 200
+    data = create_res.json()
+    assert data["category"] == "CFG_MERGE_EXPLOSION"
+    assert data["complexity_risk"] == "critical"
+    assert data["walk_complexity_score"] >= 0.85
+    assert data["profiler_counters"]["walks"] == 56190.0
+    assert data["profiler_counters"]["values_visited"] == 1_233_000_000.0
+    assert any(a["action"] == "PROFILER_WALK_ANALYZED" for a in data["audit_events"])
+
+    session_id = data["id"]
+    detail = client.get(f"/api/triage/{session_id}").json()
+    assert detail["complexity_risk"] == "critical"
+    assert detail["profiler_counters"]["walks"] == 56190.0
+
+    exported = client.get(f"/api/triage/{session_id}/export").json()
+    assert exported["session"]["complexity_risk"] == "critical"
+    assert exported["session"]["profiler_counters"]["walks"] == 56190.0
+
+
+def test_non_profiler_trace_has_no_risk(client):
+    res = client.post("/api/triage", json={
+        "title_id": "PPSA11386",
+        "title_name": "007 First Light",
+        "target_os": "linux",
+        "raw_trace": "loader: undefined symbol: qOn+wm28wmA (sceSslGetCaList)",
+    })
+    data = res.json()
+    assert data["complexity_risk"] == "none"
+    assert data["walk_complexity_score"] == 0.0
+    assert all(v is None for v in data["profiler_counters"].values())
