@@ -37,6 +37,16 @@ def test_extract_counters_no_number_not_fabricated():
     assert counters["selects_removed"] is None
 
 
+def test_extract_counters_units_without_spaces():
+    # Units like "50K walks" or "1.2G values visited" without space.
+    trace = "masked-lane walk: 50K walks, 1.2G values visited, 200M implications, 10 selects removed"
+    counters = extract_profiler_counters(trace)
+    assert counters["walks"] == 50_000.0
+    assert counters["values_visited"] == 1_200_000_000.0
+    assert counters["implications"] == 200_000_000.0
+    assert counters["selects_removed"] == 10.0
+
+
 def test_complexity_empty_trace_is_none():
     result = compute_walk_complexity({"walks": None, "values_visited": None,
                                       "implications": None, "selects_removed": None})
