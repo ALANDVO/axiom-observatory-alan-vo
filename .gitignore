@@ -18,3 +18,4 @@ coverage/
 # Agent & CLI metadata
 .antigravitycli/
 .omp/
+venv/

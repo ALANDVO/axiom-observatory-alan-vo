@@ -53,12 +53,12 @@ def _number_with_unit(pattern: str, text: str) -> Optional[float]:
     return value
 
 
-# `56,190 walks` (optionally `1.5 K walks`).
-_WALKS_RE = r"(?P<num>[\d,]+)(?:\.\d+)?(?:\s+(?P<unit>[KMGkmg]))?\s+walks"
-# `1,233 M values visited` or `1500 values visited`.
-_VALUES_RE = r"(?P<num>[\d,]+(?:\.\d+)?)(?:\s+(?P<unit>[KMGkmg]))?\s+values?\s+visited"
-# `210.9 M implications computed`.
-_IMPLICATIONS_RE = r"(?P<num>[\d,]+(?:\.\d+)?)(?:\s+(?P<unit>[KMGkmg]))?\s+implications?"
+# `56,190 walks` (optionally `1.5 K walks` or `1.5K walks`).
+_WALKS_RE = r"(?P<num>[\d,]+)(?:\.\d+)?(?:\s*(?P<unit>[KMGkmg]))?\s+walks"
+# `1,233 M values visited` or `1500 values visited` or `1.2G values visited`.
+_VALUES_RE = r"(?P<num>[\d,]+(?:\.\d+)?)(?:\s*(?P<unit>[KMGkmg]))?\s+values?\s+visited"
+# `210.9 M implications computed` or `210.9M implications`.
+_IMPLICATIONS_RE = r"(?P<num>[\d,]+(?:\.\d+)?)(?:\s*(?P<unit>[KMGkmg]))?\s+implications?"
 # `4,616 selects removed` / `selects eliminated` (numberless).
 _SELECTS_RE = r"(?P<num>[\d,]+)\s+selects?\s+(?:removed|eliminated|optimized)"
 
