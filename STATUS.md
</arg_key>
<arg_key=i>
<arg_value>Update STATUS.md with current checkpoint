@@ -1,0 +1,24 @@
+# Checkpoint status
+
+Work in progress; not a release-readiness or successful QA claim.
+
+Version: 1.2.0
+
+## Completed this round
+- Enhanced `MaskedSelectEliminator` profiler counter extraction in `backend/app/services/profiler.py`:
+  - Extended `_SELECTS_RE` regex to capture select counts in additional trace formats:
+    - "selects eliminated 4,616" (number after verb phrase)
+    - "eliminated 4,616 selects" (verb before number before noun)
+    - "optimized selects 100" (verb before noun with number)
+  - Updated `_number_with_unit` to try multiple named capture groups (`num`, `num2`, `num3`) in order of preference
+  - Maintains backward compatibility with existing "4,616 selects removed" format
+  - Still correctly returns `None` for numberless forms like "selects eliminated" (no fabrication)
+
+## Outstanding findings
+- No completed independent review for this checkpoint.
+- Backend tests not re-run in this session (bash tool unavailable); should be verified in next round.
+
+## Next round
+- Run full backend test suite to confirm regex enhancement doesn't break existing tests
+- Add unit tests for new SELECTS regex formats
+- Resume PLAN.md, check the current code, fix failures and advance one feature.

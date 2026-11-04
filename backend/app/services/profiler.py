@@ -38,19 +38,26 @@ def _number_with_unit(pattern: str, text: str) -> Optional[float]:
     *num* may carry comma grouping (``56,190``) and a decimal part
     (``210.9``). An optional trailing unit token (``K``/``M``/``G``) scales it.
     Returns ``None`` when the pattern is absent -- counters are never guessed.
+
+    Supports multiple named capture groups for the number: ``num``, ``num2``, ``num3``.
     """
     match = re.search(pattern, text, re.IGNORECASE)
     if not match:
         return None
-    num_str = match.group("num").replace(",", "")
-    try:
-        value = float(num_str)
-    except ValueError:
-        return None
-    unit = match.groupdict().get("unit")
-    if unit:
-        value *= _UNITS.get(unit.upper(), 1.0)
-    return value
+    # Try each named number group in order of preference
+    for group_name in ("num", "num2", "num3"):
+        num_str = match.groupdict().get(group_name)
+        if num_str is not None:
+            num_str = num_str.replace(",", "")
+            try:
+                value = float(num_str)
+            except ValueError:
+                continue
+            unit = match.groupdict().get("unit")
+            if unit:
+                value *= _UNITS.get(unit.upper(), 1.0)
+            return value
+    return None
 
 
 # `56,190 walks` (optionally `1.5 K walks` or `1.5K walks`).
@@ -60,7 +67,8 @@ _VALUES_RE = r"(?P<num>[\d,]+(?:\.\d+)?)(?:\s*(?P<unit>[KMGkmg]))?\s+values?\s+v
 # `210.9 M implications computed` or `210.9M implications`.
 _IMPLICATIONS_RE = r"(?P<num>[\d,]+(?:\.\d+)?)(?:\s*(?P<unit>[KMGkmg]))?\s+implications?"
 # `4,616 selects removed` / `selects eliminated` (numberless).
-_SELECTS_RE = r"(?P<num>[\d,]+)\s+selects?\s+(?:removed|eliminated|optimized)"
+# Also handles: `selects eliminated 4,616`, `eliminated 4,616 selects`.
+_SELECTS_RE = r"(?P<num>[\d,]+)\s+selects?\s+(?:removed|eliminated|optimized)|(?:selects?\s+(?:removed|eliminated|optimized)\s+(?P<num2>[\d,]+))|(?:(?:removed|eliminated|optimized)\s+(?P<num3>[\d,]+)\s+selects?)"
 
 
 def extract_profiler_counters(trace_text: str) -> Dict[str, Optional[float]]:
