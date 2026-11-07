@@ -123,8 +123,12 @@ def get_stats(db: Session) -> Dict[str, Any]:
     risk_counts = {}
     for risk, count in db.query(TriageSession.complexity_risk, func.count(TriageSession.id)).group_by(TriageSession.complexity_risk).all():
         risk_counts[risk] = count
-
     os_counts = {}
+    for os_name, count in db.query(TriageSession.target_os, func.count(TriageSession.id)).group_by(TriageSession.target_os).all():
+        os_counts[os_name] = count
+
+
+
 
     return {
         "total_sessions": total_sessions,

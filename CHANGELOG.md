@@ -1,8 +1,15 @@
 # Changelog
 
+## 1.4.0 — work-in-progress checkpoint
+
+Partial code published for continued development. Known issues: STATUS.md.
+
 ## 1.3.0 — work-in-progress checkpoint
 
 Partial code published for continued development. Known issues: STATUS.md.
+
+### Fixed
+- Fixed missing `target_os_counts` aggregation in `/api/stats` endpoint - now correctly returns per-OS session counts (e.g., `{"linux": 3, "windows": 1}`) for the dashboard "Target OS Distribution" stat card.
 
 ## 1.2.0 — work-in-progress checkpoint
 
