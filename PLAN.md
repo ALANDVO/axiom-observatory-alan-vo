@@ -55,3 +55,6 @@ Acceptance:
 - Role-based access control for viewer, analyst, and admin
 - Local demo mode toggle for unauthenticated localhost testing
 
+---
+
+Alan Vo · [alanvo.net](https://alanvo.net)

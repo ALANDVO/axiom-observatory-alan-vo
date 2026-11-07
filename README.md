@@ -132,3 +132,7 @@ Axiom Observatory supports secure authentication through Keycloak OIDC with upst
 
 Author: Alan Vo (<alanvo@gmail.com>)
 License: MIT
+
+---
+
+Alan Vo · [alanvo.net](https://alanvo.net)

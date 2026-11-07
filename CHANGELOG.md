@@ -46,3 +46,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - FastAPI backend with paginated endpoints and JSON export capabilities.
 - React + TypeScript dashboard with live analytics, submission workflows, and stop diagnostics.
 - Offline reproducible evaluation benchmark comparing rule heuristics against ML classification.
+
+---
+
+Alan Vo · [alanvo.net](https://alanvo.net)
