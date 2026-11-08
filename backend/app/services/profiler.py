@@ -45,7 +45,7 @@ def _number_with_unit(pattern: str, text: str) -> Optional[float]:
     if not match:
         return None
     # Try each named number group in order of preference
-    for group_name in ("num", "num2", "num3"):
+    for group_name in ("num", "num2", "num3", "num4", "num5", "num6"):
         num_str = match.groupdict().get(group_name)
         if num_str is not None:
             num_str = num_str.replace(",", "")
@@ -67,8 +67,9 @@ _VALUES_RE = r"(?P<num>[\d,]+(?:\.\d+)?)(?:\s*(?P<unit>[KMGkmg]))?\s+values?\s+v
 # `210.9 M implications computed` or `210.9M implications`.
 _IMPLICATIONS_RE = r"(?P<num>[\d,]+(?:\.\d+)?)(?:\s*(?P<unit>[KMGkmg]))?\s+implications?"
 # `4,616 selects removed` / `selects eliminated` (numberless).
-# Also handles: `selects eliminated 4,616`, `eliminated 4,616 selects`.
-_SELECTS_RE = r"(?P<num>[\d,]+)\s+selects?\s+(?:removed|eliminated|optimized)|(?:selects?\s+(?:removed|eliminated|optimized)\s+(?P<num2>[\d,]+))|(?:(?:removed|eliminated|optimized)\s+(?P<num3>[\d,]+)\s+selects?)"
+# Also handles: `selects eliminated 4,616`, `eliminated 4,616 selects`, `500 selects were eliminated`,
+# `selects eliminated: 1,234`, `optimized 500 selects away`, `500 selects got removed`.
+_SELECTS_RE = r"(?P<num>[\d,]+)\s+selects?\s+(?:removed|eliminated|optimized|were\s+eliminated|got\s+removed)|(?:selects?\s+(?:removed|eliminated|optimized)\s+(?P<num2>[\d,]+))|(?:(?:removed|eliminated|optimized)\s+(?P<num3>[\d,]+)\s+selects?)|(?:selects?\s+(?:removed|eliminated|optimized)\s*:\s*(?P<num4>[\d,]+))|(?:(?:removed|eliminated|optimized)\s*:\s*(?P<num5>[\d,]+)\s+selects?)|(?:(?:removed|eliminated|optimized)\s+(?P<num6>[\d,]+)\s+selects?\s+away)"
 
 
 def extract_profiler_counters(trace_text: str) -> Dict[str, Optional[float]]:

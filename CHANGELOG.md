@@ -1,7 +1,16 @@
 # Changelog
 
+## 1.5.0 — work-in-progress checkpoint
+
+Partial code published for continued development. Known issues: STATUS.md.
+
+## 1.4.0 — work-in-progress checkpoint
 ## 1.4.0 — work-in-progress checkpoint
 
+Partial code published for continued development. Known issues: STATUS.md.
+
+### Enhanced
+- Expanded profiler regex patterns to handle additional recompiler trace formats for `selects_removed` counter: passive voice ("selects were eliminated"), colloquial forms ("selects got removed"), colon-separated ("selects eliminated: 1,234", "eliminated: 500 selects"), and verb-first with colon ("selects removed: 500"). Added unit tests covering all new formats.
 Partial code published for continued development. Known issues: STATUS.md.
 
 ## 1.3.0 — work-in-progress checkpoint
