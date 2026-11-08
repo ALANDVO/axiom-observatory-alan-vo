@@ -77,3 +77,43 @@ def test_complexity_no_counters_is_none():
     result = compute_walk_complexity(counters)
     assert result["risk"] == "none"
     assert result["score"] == 0.0
+def test_extract_counters_selects_passive_voice():
+    # Passive voice forms should be parsed.
+    trace = "500 selects were eliminated during optimization"
+    counters = extract_profiler_counters(trace)
+    assert counters["selects_removed"] == 500.0
+
+
+def test_extract_counters_selects_got_removed():
+    # "got removed" colloquial form.
+    trace = "1,234 selects got removed from the CFG"
+    counters = extract_profiler_counters(trace)
+    assert counters["selects_removed"] == 1234.0
+
+
+def test_extract_counters_selects_with_colon():
+    # Colon-separated format.
+    trace = "selects eliminated: 1,234"
+    counters = extract_profiler_counters(trace)
+    assert counters["selects_removed"] == 1234.0
+
+
+def test_extract_counters_selects_removed_colon():
+    # Colon after verb.
+    trace = "selects removed: 500"
+    counters = extract_profiler_counters(trace)
+    assert counters["selects_removed"] == 500.0
+
+
+def test_extract_counters_eliminated_colon():
+    # Colon after verb before selects.
+    trace = "eliminated: 500 selects"
+    counters = extract_profiler_counters(trace)
+    assert counters["selects_removed"] == 500.0
+
+
+def test_extract_counters_optimized_colon():
+    # Colon with optimized.
+    trace = "selects optimized: 100"
+    counters = extract_profiler_counters(trace)
+    assert counters["selects_removed"] == 100.0
