@@ -138,3 +138,23 @@ def get_stats(db: Session) -> Dict[str, Any]:
         "complexity_risk_counts": risk_counts,
         "target_os_counts": os_counts
     }
+
+def update_stop_progression(db: Session, session_id: int, stop_progression: List[int]) -> Optional[TriageSession]:
+    """Update the stop progression for a triage session.
+    
+    Args:
+        db: Database session
+        session_id: The triage session ID
+        stop_progression: List of stop numbers encountered during bisection (stops 1..N)
+        
+    Returns:
+        Updated TriageSession or None if not found
+    """
+    session = db.query(TriageSession).filter(TriageSession.id == session_id).first()
+    if not session:
+        return None
+    session.stop_progression = stop_progression
+    db.add(session)
+    db.commit()
+    db.refresh(session)
+    return session

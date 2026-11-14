@@ -117,3 +117,141 @@ def test_extract_counters_optimized_colon():
     trace = "selects optimized: 100"
     counters = extract_profiler_counters(trace)
     assert counters["selects_removed"] == 100.0
+
+# Execution bisection tracker tests
+def test_update_stop_progression():
+    """Test updating stop progression for a triage session.
+    
+    Verifies that the stop_progression field can be updated
+    via the API endpoint, tracking linear progression
+    through multiple startup stops (stops 1..N).
+    """
+    from sqlalchemy.orm import Session
+    from app.services.triage_service import perform_triage, update_stop_progression
+    from app.models.database import TriageSession, Base, engine
+    from app.models.schemas import TriageCreateRequest
+    from fastapi.security import OAuth2PasswordBearer
+    
+    # Create tables
+    Base.metadata.create_all(bind=engine)
+    
+    db = Session(engine)
+    
+    # Create a test triage session
+    request = TriageCreateRequest(
+        title_id="TEST0001",
+        title_name="Test Title",
+        target_os="linux",
+        raw_trace="masked-lane walk implication loop: 1000 walks, 500 values visited, selects eliminated"
+    )
+    session = perform_triage(db, request)
+    
+    # Test updating stop progression
+    updated = update_stop_progression(db, session.id, [1, 2, 3])
+    assert updated is not None
+    assert updated.stop_progression == [1, 2, 3]
+    
+    # Test updating with new stops (appending)
+    updated2 = update_stop_progression(db, session.id, [1, 2, 3, 4, 5])
+    assert updated2 is not None
+    assert updated2.stop_progression == [1, 2, 3, 4, 5]
+    
+    # Test with non-existent session
+    none_updated = update_stop_progression(db, 9999, [1, 2, 3])
+    assert none_updated is None
+    
+    db.close()
+
+def test_stop_progression_empty():
+    """Test that empty stop progression list is handled correctly."""
+    from sqlalchemy.orm import Session
+    from app.services.triage_service import perform_triage, update_stop_progression
+    from app.models.database import TriageSession, Base, engine
+    from app.models.schemas import TriageCreateRequest
+    
+    Base.metadata.create_all(bind=engine)
+    
+    db = Session(engine)
+    
+    request = TriageCreateRequest(
+        title_id="TEST0002",
+        title_name="Test Title 2",
+        target_os="linux",
+        raw_trace="masked-lane walk implication loop: 500 walks, 250 values visited, selects eliminated"
+    )
+    session = perform_triage(db, request)
+    
+    # Test with empty list
+    updated = update_stop_progression(db, session.id, [])
+    assert updated is not None
+    assert updated.stop_progression == []
+    
+    db.close()
+
+# Execution bisection tracker tests
+def test_update_stop_progression():
+    """Test updating stop progression for a triage session.
+    
+    Verifies that the stop_progression field can be updated
+    via the API endpoint, tracking linear progression
+    through multiple startup stops (stops 1..N).
+    """
+    from sqlalchemy.orm import Session
+    from app.services.triage_service import perform_triage, update_stop_progression
+    from app.models.database import TriageSession, Base, engine
+    from app.models.schemas import TriageCreateRequest
+    
+    # Create tables
+    Base.metadata.create_all(bind=engine)
+    
+    db = Session(engine)
+    
+    # Create a test triage session
+    request = TriageCreateRequest(
+        title_id="TEST0001",
+        title_name="Test Title",
+        target_os="linux",
+        raw_trace="masked-lane walk implication loop: 1000 walks, 500 values visited, selects eliminated"
+    )
+    session = perform_triage(db, request)
+    
+    # Test updating stop progression
+    updated = update_stop_progression(db, session.id, [1, 2, 3])
+    assert updated is not None
+    assert updated.stop_progression == [1, 2, 3]
+    
+    # Test updating with new stops (appending)
+    updated2 = update_stop_progression(db, session.id, [1, 2, 3, 4, 5])
+    assert updated2 is not None
+    assert updated2.stop_progression == [1, 2, 3, 4, 5]
+    
+    # Test with non-existent session
+    none_updated = update_stop_progression(db, 9999, [1, 2, 3])
+    assert none_updated is None
+    
+    db.close()
+def test_stop_progression_empty():
+    """Test that empty stop progression list is handled correctly."""
+    from sqlalchemy.orm import Session
+    from app.services.triage_service import perform_triage, update_stop_progression
+    from app.models.database import TriageSession, Base, engine
+    from app.models.schemas import TriageCreateRequest
+    
+    Base.metadata.create_all(bind=engine)
+    
+    db = Session(engine)
+    
+    request = TriageCreateRequest(
+        title_id="TEST0002",
+        title_name="Test Title 2",
+        target_os="linux",
+        raw_trace="masked-lane walk implication loop: 500 walks, 250 values visited, selects eliminated"
+    )
+    session = perform_triage(db, request)
+    
+    # Test with empty list
+    updated = update_stop_progression(db, session.id, [])
+    assert updated is not None
+    assert updated.stop_progression == []
+    
+    db.close()
