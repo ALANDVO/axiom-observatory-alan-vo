@@ -1,5 +1,5 @@
 import json
-from typing import Optional
+from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from app.core.config import settings
@@ -56,6 +56,13 @@ def get_triage(session_id: int, db: Session = Depends(get_db)):
     return session
 
 @router.get("/triage/{session_id}/export")
+
+@router.patch("/triage/{session_id}/stop-progression", response_model=TriageSessionDetail)
+def update_stop_progression(session_id: int, stop_progression: List[int], db: Session = Depends(get_db)):
+    session = triage_service.update_stop_progression(db, session_id, stop_progression)
+    if not session:
+        raise HTTPException(status_code=404, detail="Triage session not found")
+    return session
 def export_triage(session_id: int, db: Session = Depends(get_db)):
     session = triage_service.get_session(db, session_id)
     if not session:

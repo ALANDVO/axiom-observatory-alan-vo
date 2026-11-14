@@ -45,6 +45,7 @@ class TriageSessionSummary(BaseModel):
     absent_imports: int
     stub_imports: int
     walk_complexity_score: float = 0.0
+    stop_progression: List[int] = []
     complexity_risk: str = "none"
     created_at: datetime
 
@@ -66,6 +67,7 @@ class TriageSessionDetail(BaseModel):
     stub_imports: int
     profiler_counters: Dict[str, Any] = {}
     walk_complexity_score: float = 0.0
+    stop_progression: List[int] = []
     complexity_risk: str = "none"
     created_at: datetime
     symbols: List[SymbolResponse] = []
