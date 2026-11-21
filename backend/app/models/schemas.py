@@ -84,6 +84,21 @@ class TriageSessionDetail(BaseModel):
             except json.JSONDecodeError:
                 return {}
         return v if isinstance(v, dict) else {}
+    @field_validator("stop_progression", mode="before")
+    @classmethod
+    def _parse_stop_progression(cls, v: Any) -> List[int]:
+        if isinstance(v, str):
+            try:
+                parsed = json.loads(v)
+                if isinstance(parsed, list) and all(isinstance(x, int) for x in parsed):
+                    return parsed
+            except (json.JSONDecodeError, TypeError):
+                pass
+        if isinstance(v, list) and all(isinstance(x, int) for x in v):
+            return v
+        return []
+
+
 
 class PaginatedTriageResponse(BaseModel):
     items: List[TriageSessionSummary]
