@@ -55,7 +55,6 @@ def get_triage(session_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Triage session not found")
     return session
 
-@router.get("/triage/{session_id}/export")
 
 @router.patch("/triage/{session_id}/stop-progression", response_model=TriageSessionDetail)
 def update_stop_progression(session_id: int, stop_progression: List[int], db: Session = Depends(get_db)):
@@ -63,6 +62,8 @@ def update_stop_progression(session_id: int, stop_progression: List[int], db: Se
     if not session:
         raise HTTPException(status_code=404, detail="Triage session not found")
     return session
+@router.get("/triage/{session_id}/export")
+
 def export_triage(session_id: int, db: Session = Depends(get_db)):
     session = triage_service.get_session(db, session_id)
     if not session:
