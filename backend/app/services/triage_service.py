@@ -153,7 +153,7 @@ def update_stop_progression(db: Session, session_id: int, stop_progression: List
     session = db.query(TriageSession).filter(TriageSession.id == session_id).first()
     if not session:
         return None
-    session.stop_progression = stop_progression
+    session.stop_progression = json.dumps(stop_progression) if stop_progression else "[]"
     db.add(session)
     db.commit()
     db.refresh(session)
